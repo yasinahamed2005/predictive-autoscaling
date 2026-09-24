@@ -5,8 +5,10 @@ metadata:
   namespace: predictive-autoscaling
   labels: { app: backend }
 spec:
+  type: NodePort
   selector: { app: backend }
   ports:
     - name: http
       port: 5000
       targetPort: 5000
+      nodePort: 30500

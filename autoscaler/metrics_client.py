@@ -18,7 +18,7 @@ def _query(expr: str) -> float:
 
 
 def get_current_rps() -> float:
-    return _query("sum(dukaan_requests_per_second)")
+    return _query("sum(rate(dukaan_http_requests_total[30s])) or sum(dukaan_requests_per_second)")
 
 
 def get_active_requests() -> float:

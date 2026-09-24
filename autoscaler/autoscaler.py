@@ -51,7 +51,8 @@ def run_once(last_scale_time: float) -> float:
     print(
         f"[{ts}] strategy={Config.STRATEGY} current_rps={current_rps:.2f} "
         f"predicted_rps={predicted_rps:.2f} current_replicas={current_replicas} "
-        f"desired_replicas={desired} cooldown={in_cooldown}"
+        f"desired_replicas={desired} cooldown={in_cooldown}",
+        flush=True
     )
 
     if desired != current_replicas and not in_cooldown:

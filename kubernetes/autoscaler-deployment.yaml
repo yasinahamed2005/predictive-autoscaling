@@ -16,6 +16,8 @@ spec:
           imagePullPolicy: Never
           ports: [{ containerPort: 9100 }]
           env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
             - name: PROMETHEUS_URL
               value: "http://prometheus:9090"
             - name: ML_SERVICE_URL
@@ -29,15 +31,15 @@ spec:
             - name: AUTOSCALER_STRATEGY
               value: "predictive"
             - name: MIN_REPLICAS
-              value: "1"
+              value: "2"
             - name: MAX_REPLICAS
               value: "10"
             - name: RPS_PER_REPLICA
               value: "15"
             - name: POLL_INTERVAL_SECONDS
-              value: "15"
+              value: "5"
             - name: COOLDOWN_SECONDS
-              value: "60"
+              value: "15"
             - name: DRY_RUN
               value: "false"
 ---
