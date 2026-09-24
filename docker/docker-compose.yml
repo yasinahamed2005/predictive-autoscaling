@@ -1,0 +1,106 @@
+name: predictive-autoscaling
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: pa-mongo
+    restart: unless-stopped
+    ports: ["27017:27017"]
+    volumes: [mongo-data:/data/db]
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    container_name: pa-backend
+    restart: unless-stopped
+    depends_on: [mongo]
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      CLIENT_URL: http://localhost:5173
+      MONGODB_URI: mongodb://mongo:27017/dukaan
+      JWT_ACCESS_SECRET: change_me_access
+      JWT_REFRESH_SECRET: change_me_refresh
+    ports: ["5000:5000"]
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+    container_name: pa-frontend
+    restart: unless-stopped
+    depends_on: [backend]
+    ports: ["5173:80"]
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: pa-prometheus
+    restart: unless-stopped
+    volumes:
+      - ../monitoring-service/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports: ["9090:9090"]
+    depends_on: [backend]
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: pa-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ../monitoring-service/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../monitoring-service/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
+
+  ml-service:
+    build:
+      context: ..
+      dockerfile: docker/ml-service.Dockerfile
+    container_name: pa-ml-service
+    restart: unless-stopped
+    ports: ["8000:8000"]
+
+  collector:
+    build:
+      context: ..
+      dockerfile: docker/collector.Dockerfile
+    container_name: pa-collector
+    restart: unless-stopped
+    environment:
+      PROMETHEUS_URL: http://prometheus:9090
+      COLLECT_INTERVAL_SECONDS: 300
+      OUTPUT_CSV: /datasets/historical_workload.csv
+    volumes:
+      - ../datasets:/datasets
+    depends_on: [prometheus]
+
+  autoscaler:
+    build:
+      context: ..
+      dockerfile: docker/autoscaler.Dockerfile
+    container_name: pa-autoscaler
+    restart: unless-stopped
+    environment:
+      PROMETHEUS_URL: http://prometheus:9090
+      ML_SERVICE_URL: http://ml-service:8000
+      AUTOSCALER_STRATEGY: predictive
+      DRY_RUN: "true"           # set to "false" + mount kubeconfig when running against a real cluster
+      MIN_REPLICAS: 1
+      MAX_REPLICAS: 10
+      RPS_PER_REPLICA: 15
+      POLL_INTERVAL_SECONDS: 15
+      COOLDOWN_SECONDS: 60
+    ports: ["9100:9100"]
+    depends_on: [prometheus, ml-service]
+
+volumes:
+  mongo-data:
+  prometheus-data:
+  grafana-data:

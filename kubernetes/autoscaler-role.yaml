@@ -1,0 +1,14 @@
+# Minimal permissions: the autoscaler only needs to read and scale
+# Deployments in its own namespace -- deliberately not cluster-admin.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: autoscaler-role
+  namespace: predictive-autoscaling
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments", "deployments/scale"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]

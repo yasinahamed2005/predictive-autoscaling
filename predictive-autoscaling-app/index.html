@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Predictive Autoscaling Management Application (Port 8090)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Header Banner -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-2xl backdrop-blur flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-2xl font-bold">
+          ⚡
+        </div>
+        <div>
+          <span class="text-xs uppercase tracking-widest text-indigo-400 font-extrabold">Standalone Project Application</span>
+          <h1 class="text-2xl font-bold tracking-tight text-white">Predictive Autoscaling Management Application</h1>
+          <p class="text-sm text-slate-400 mt-0.5">Control Center for Dukaan E-Commerce Platform Load Forecasting & Kubernetes Pod Replicas</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping"></span>
+          Control Center Active (Port 8090)
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid: Controls & Main App Live Monitor -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left Column: Controls (5 cols) -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <!-- Section 1: Traffic Injection -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 space-y-5">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">1. Inject Member Traffic</h2>
+            <span id="users-count-badge" class="text-sm font-black text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">10 Members</span>
+          </div>
+
+          <!-- Preset Traffic Buttons -->
+          <div class="grid grid-cols-3 gap-2.5">
+            <button onclick="setUsers(10)" class="px-3 py-2.5 bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 rounded-2xl text-xs font-bold transition-all text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              10 Members<br><span class="text-[10px] text-slate-400 font-normal">(Normal)</span>
+            </button>
+            <button onclick="setUsers(50)" class="px-3 py-2.5 bg-slate-800/80 hover:bg-amber-500/20 border border-slate-700 hover:border-amber-500/40 rounded-2xl text-xs font-bold transition-all text-amber-300 focus:ring-2 focus:ring-amber-500">
+              50 Members
+            </button>
+            <button onclick="setUsers(500)" class="px-3 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 rounded-2xl text-xs font-bold transition-all text-rose-300 focus:ring-2 focus:ring-rose-500">
+              🔥 500 Members
+            </button>
+          </div>
+
+          <!-- Custom Slider -->
+          <div class="space-y-2 pt-2">
+            <div class="flex justify-between text-xs font-medium text-slate-400">
+              <span>10 (Default)</span>
+              <span>500 Members</span>
+              <span>2,000 (Max Spike)</span>
+            </div>
+            <input id="user-slider" type="range" min="10" max="2000" step="10" value="10" oninput="onSliderChange(this.value)"
+                   class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+          </div>
+
+          <!-- AI Generator Toggle -->
+          <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-300">🤖 AI Automated Traffic Surge Generator</div>
+              <div class="text-[11px] text-slate-500">Simulates peak-hour flash sale traffic</div>
+            </div>
+            <button id="ai-btn" onclick="toggleAISimulation()" class="px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all">
+              Start AI Traffic
+            </button>
+          </div>
+        </div>
+
+        <!-- Section 2: Capacity & Pod Calculation Box -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 space-y-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">2. Pod Capacity & ML Calculation</h2>
+
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3 font-mono text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Target Traffic Demand:</span>
+              <span id="calc-demand" class="text-amber-400 font-bold">1.5 req/s (10 Users)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Current Pod Capacity:</span>
+              <span id="calc-capacity" class="text-indigo-400 font-bold">1 Pod (15 req/s)</span>
+            </div>
+            <div class="flex justify-between pt-2 border-t border-slate-800/80 text-sm">
+              <span class="text-white font-bold">Required Pods to Handle Load:</span>
+              <span id="calc-required" class="text-emerald-400 font-black">1 Pod Required</span>
+            </div>
+          </div>
+
+          <!-- Predictive Autoscaling Toggle Button -->
+          <button id="predictive-toggle-btn" onclick="togglePredictiveAutoscaling()" 
+                  class="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
+            <span>🧠</span>
+            <span id="toggle-btn-text">ENABLE PREDICTIVE AUTOSCALING (Auto-Add Required Pods)</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Live Monitor of Main Dukaan App (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <!-- Live Status Card -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+            <div>
+              <h2 class="text-base font-bold text-white">MAIN DUKAAN STOREFRONT HEALTH MONITOR</h2>
+              <p class="text-xs text-slate-400">Target Application: <span class="font-mono text-indigo-400">http://localhost:5174</span></p>
+            </div>
+            <div id="status-badge" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+              🟢 200 OK (HEALTHY)
+            </div>
+          </div>
+
+          <!-- Key Metrics Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
+              <div class="text-[11px] uppercase font-bold text-slate-400">Active Members</div>
+              <div id="metric-users" class="text-2xl font-black text-white mt-1">10</div>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
+              <div class="text-[11px] uppercase font-bold text-slate-400">Traffic RPS</div>
+              <div id="metric-rps" class="text-2xl font-black text-amber-400 mt-1">1.5 <span class="text-xs font-normal">req/s</span></div>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
+              <div class="text-[11px] uppercase font-bold text-slate-400">ML Forecast (T+5m)</div>
+              <div id="metric-pred" class="text-2xl font-black text-indigo-400 mt-1">1.5 <span class="text-xs font-normal">req/s</span></div>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
+              <div class="text-[11px] uppercase font-bold text-slate-400">Active Pods</div>
+              <div id="metric-pods" class="text-2xl font-black text-emerald-400 mt-1">1 <span class="text-xs font-normal text-slate-400">/ 10</span></div>
+            </div>
+          </div>
+
+          <!-- Active Kubernetes Pods Visualization -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+              <span>Kubernetes Deployment (`backend-deployment`)</span>
+              <span id="pods-capacity-text" class="text-slate-400 font-mono text-[11px]">1 Pod(s) Active (Max: 15 req/s)</span>
+            </div>
+            <div id="pod-icons-container" class="flex flex-wrap gap-2 p-3 bg-slate-950 rounded-2xl border border-slate-800 min-h-[50px] items-center">
+              <div class="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                <span>📦</span> <span>backend-pod-1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Dukaan Storefront Crash Alert Box (Appears when 500 members overload 1 Pod) -->
+          <div id="crash-card" class="hidden p-6 bg-rose-950/40 border-2 border-rose-500/80 rounded-2xl space-y-4 animate-pulse-slow">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center text-2xl flex-shrink-0">
+                ⚠️
+              </div>
+              <div class="space-y-1">
+                <span class="px-2.5 py-1 bg-rose-500/20 text-rose-300 text-[10px] font-black uppercase tracking-wider rounded-md border border-rose-500/30">
+                  HTTP 503 SERVICE UNAVAILABLE (BAD REQUEST)
+                </span>
+                <h3 class="text-lg font-black text-white">Main Dukaan Application Has Crashed!</h3>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  <strong id="crash-users-text" class="text-amber-400">500 members</strong> hit the Main Application simultaneously! The application only has <strong class="text-rose-400 font-bold">1 Pod (15 req/s capacity)</strong>, so the main storefront stopped working and returned <strong>503 Bad Request / Connection Timeout</strong> to customers!
+                </p>
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-950 rounded-xl font-mono text-[11px] text-rose-300 border border-rose-900/40">
+              [LOG ERROR] 503 Bad Gateway: Request pool saturated. Main application stopped!
+            </div>
+
+            <button onclick="togglePredictiveAutoscaling()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2">
+              <span>🧠 Click Here: Enable Predictive Autoscaling to Provision Required Pods</span>
+            </button>
+          </div>
+
+          <!-- Success Card (Appears when Predictive Autoscaling provisions required pods) -->
+          <div id="success-card" class="p-4 bg-emerald-950/30 border border-emerald-500/40 rounded-2xl space-y-2 text-xs">
+            <div class="font-bold text-emerald-300 flex items-center gap-2">
+              <span>✅</span> Main Application Status: Healthy & Fully Operational
+            </div>
+            <p class="text-slate-300">
+              Active pod capacity comfortably meets the current member traffic demand. Customers on <span class="font-mono text-emerald-400">http://localhost:5174</span> experience zero downtime!
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Terminal Event Log -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Control Center Event Log</h3>
+            <button onclick="clearLogs()" class="text-[11px] text-slate-400 hover:text-white">Clear Logs</button>
+          </div>
+          <div id="log-window" class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80 font-mono text-[11px] h-36 overflow-y-auto space-y-1.5 text-slate-300">
+            <div class="text-slate-500">[SYSTEM INIT] Predictive Autoscaling Management Application ready on Port 8090.</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Real-time Script Logic -->
+  <script>
+    let activeUsers = 10;
+    let isPredictiveOn = false;
+    let currentPods = 1;
+    let aiInterval = null;
+    const RPS_PER_POD = 15;
+    const SAFETY_MARGIN = 1.2;
+
+    function addLog(msg, type = "info") {
+      const logWin = document.getElementById('log-window');
+      const time = new Date().toLocaleTimeString();
+      let colorClass = "text-slate-300";
+      if (type === "error") colorClass = "text-rose-400 font-bold";
+      if (type === "success") colorClass = "text-emerald-400 font-bold";
+      if (type === "warning") colorClass = "text-amber-400 font-bold";
+
+      const div = document.createElement('div');
+      div.className = colorClass;
+      div.innerText = `[${time}] ${msg}`;
+      logWin.appendChild(div);
+      logWin.scrollTop = logWin.scrollHeight;
+    }
+
+    function clearLogs() {
+      document.getElementById('log-window').innerHTML = '<div class="text-slate-500">[LOGS CLEARED]</div>';
+    }
+
+    function setUsers(count) {
+      activeUsers = count;
+      document.getElementById('user-slider').value = count;
+      document.getElementById('users-count-badge').innerText = `${count} Members`;
+      addLog(`Member traffic updated to: ${count} concurrent users`, count > 100 ? "warning" : "info");
+      updateState();
+    }
+
+    function onSliderChange(val) {
+      setUsers(parseInt(val));
+    }
+
+    function togglePredictiveAutoscaling() {
+      isPredictiveOn = !isPredictiveOn;
+      const btn = document.getElementById('predictive-toggle-btn');
+      const btnText = document.getElementById('toggle-btn-text');
+
+      if (isPredictiveOn) {
+        btn.className = "w-full py-4 px-6 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-rose-900/30 flex items-center justify-center gap-2";
+        btnText.innerText = "DISABLE PREDICTIVE AUTOSCALING (Revert to 1 Pod)";
+        addLog("Predictive Autoscaler ENABLED: ML forecast active. Provisioning required Pods...", "success");
+      } else {
+        btn.className = "w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2";
+        btnText.innerText = "ENABLE PREDICTIVE AUTOSCALING (Auto-Add Required Pods)";
+        addLog("Predictive Autoscaler DISABLED: Reverting to default 1 Pod", "error");
+      }
+      updateState();
+    }
+
+    function toggleAISimulation() {
+      const btn = document.getElementById('ai-btn');
+      if (aiInterval) {
+        clearInterval(aiInterval);
+        aiInterval = null;
+        btn.innerText = "Start AI Traffic";
+        btn.className = "px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all";
+        addLog("AI Traffic Generator Stopped", "info");
+      } else {
+        btn.innerText = "Stop AI Traffic";
+        btn.className = "px-4 py-2 bg-rose-600/30 border border-rose-500 text-rose-300 hover:bg-rose-600/40 rounded-xl text-xs font-bold transition-all animate-pulse";
+        addLog("AI Traffic Generator Started: Simulating surge curve...", "success");
+        
+        const pattern = [10, 50, 200, 500, 1100, 1800, 700, 150];
+        let step = 0;
+        aiInterval = setInterval(() => {
+          setUsers(pattern[step % pattern.length]);
+          step++;
+        }, 3000);
+      }
+    }
+
+    function updateState() {
+      const currentRps = Math.round(activeUsers * 0.15 * 10) / 10;
+      const predictedRps = activeUsers > 50 ? Math.round((currentRps * 1.35 + 2.5) * 10) / 10 : currentRps;
+      
+      const targetRps = Math.max(currentRps, predictedRps);
+      const requiredPods = Math.max(1, Math.min(10, Math.ceil((targetRps * SAFETY_MARGIN) / RPS_PER_POD)));
+
+      // Calculation Box Update (BEFORE scaling)
+      document.getElementById('calc-demand').innerText = `${currentRps} req/s (${activeUsers} Users)`;
+      document.getElementById('calc-capacity').innerText = `${currentPods} Pod (${currentPods * RPS_PER_POD} req/s)`;
+      document.getElementById('calc-required').innerText = `${requiredPods} Pod(s) Required`;
+
+      // Determine active pods
+      if (isPredictiveOn) {
+        currentPods = requiredPods;
+      } else {
+        currentPods = 1; // Default 1 Pod
+      }
+
+      const isOverloaded = currentRps > (currentPods * RPS_PER_POD + 2);
+
+      // Metrics UI
+      document.getElementById('metric-users').innerText = activeUsers.toLocaleString();
+      document.getElementById('metric-rps').innerHTML = `${currentRps} <span class="text-xs font-normal">req/s</span>`;
+      document.getElementById('metric-pred').innerHTML = `${predictedRps} <span class="text-xs font-normal">req/s</span>`;
+      document.getElementById('metric-pods').innerHTML = `${currentPods} <span class="text-xs font-normal text-slate-400">/ 10</span>`;
+      document.getElementById('pods-capacity-text').innerText = `${currentPods} Pod(s) Active (Max: ${currentPods * RPS_PER_POD} req/s)`;
+
+      // Pod Icons
+      const container = document.getElementById('pod-icons-container');
+      container.innerHTML = '';
+      for (let i = 1; i <= currentPods; i++) {
+        const pod = document.createElement('div');
+        pod.className = `px-3 py-1.5 rounded-lg text-xs font-bold border flex items-center gap-1.5 ${
+          isOverloaded
+            ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+            : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+        }`;
+        pod.innerHTML = `<span>📦</span> <span>backend-pod-${i}</span>`;
+        container.appendChild(pod);
+      }
+
+      // Broadcast state to Express backend and Local Storage
+      const healthPayload = {
+        isOverloaded: isOverloaded,
+        activeUsers: activeUsers,
+        currentPods: currentPods,
+        requiredPods: requiredPods,
+        currentRps: currentRps,
+        isPredictiveOn: isPredictiveOn,
+        timestamp: Date.now()
+      };
+
+      try {
+        localStorage.setItem('dukaan_system_health', JSON.stringify(healthPayload));
+        
+        // Instant BroadcastChannel for cross-tab sync
+        if ('BroadcastChannel' in window) {
+          const bc = new BroadcastChannel('dukaan_system_channel');
+          bc.postMessage(healthPayload);
+          bc.close();
+        }
+
+        // Post to backend REST API status broker
+        fetch('http://localhost:5000/api/v1/system-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(healthPayload)
+        }).catch(() => {});
+      } catch (e) {}
+
+      // Status Badges & Crash Card
+      const badge = document.getElementById('status-badge');
+      const crashCard = document.getElementById('crash-card');
+      const successCard = document.getElementById('success-card');
+
+      if (isOverloaded) {
+        badge.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40 animate-pulse";
+        badge.innerText = "🔴 503 SERVICE UNAVAILABLE (OVERLOADED)";
+        crashCard.classList.remove('hidden');
+        successCard.classList.add('hidden');
+        document.getElementById('crash-users-text').innerText = `${activeUsers} members`;
+      } else {
+        badge.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+        badge.innerText = "🟢 200 OK (HEALTHY)";
+        crashCard.classList.add('hidden');
+        successCard.classList.remove('hidden');
+      }
+    }
+
+    // Initial run
+    updateState();
+  </script>
+</body>
+</html>

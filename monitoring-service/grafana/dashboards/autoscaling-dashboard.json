@@ -1,0 +1,80 @@
+{
+  "title": "Predictive Autoscaling Dashboard",
+  "uid": "predictive-autoscaling",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Requests per second (actual)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(dukaan_requests_per_second)", "legendFormat": "actual RPS" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Predicted vs Actual Load",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "sum(dukaan_requests_per_second)", "legendFormat": "actual" },
+        { "expr": "autoscaler_predicted_load", "legendFormat": "predicted (t+horizon)" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Active Requests (in-flight)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "sum(dukaan_active_requests)", "legendFormat": "active requests" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "p95 Request Latency",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(dukaan_http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p95 latency (s)"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Backend Replica Count (Predictive vs Reactive)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        { "expr": "autoscaler_current_replicas{strategy=\"predictive\"}", "legendFormat": "predictive replicas" },
+        { "expr": "autoscaler_current_replicas{strategy=\"reactive\"}", "legendFormat": "reactive replicas" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Scaling Decisions (annotations)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        { "expr": "autoscaler_scale_events_total", "legendFormat": "cumulative scale events" }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "CPU / Memory (default node exporter metrics)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "targets": [
+        { "expr": "rate(dukaan_process_cpu_user_seconds_total[1m])", "legendFormat": "backend CPU (user)" },
+        { "expr": "dukaan_process_resident_memory_bytes", "legendFormat": "backend RSS memory" }
+      ]
+    }
+  ]
+}

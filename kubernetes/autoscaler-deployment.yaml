@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autoscaler
+  namespace: predictive-autoscaling
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: autoscaler } }
+  template:
+    metadata: { labels: { app: autoscaler } }
+    spec:
+      serviceAccountName: autoscaler
+      containers:
+        - name: autoscaler
+          image: predictive-autoscaling-autoscaler:latest
+          imagePullPolicy: Never
+          ports: [{ containerPort: 9100 }]
+          env:
+            - name: PROMETHEUS_URL
+              value: "http://prometheus:9090"
+            - name: ML_SERVICE_URL
+              value: "http://ml-service:8000"
+            - name: K8S_NAMESPACE
+              value: "predictive-autoscaling"
+            - name: K8S_DEPLOYMENT_NAME
+              value: "backend"
+            - name: K8S_IN_CLUSTER
+              value: "true"
+            - name: AUTOSCALER_STRATEGY
+              value: "predictive"
+            - name: MIN_REPLICAS
+              value: "1"
+            - name: MAX_REPLICAS
+              value: "10"
+            - name: RPS_PER_REPLICA
+              value: "15"
+            - name: POLL_INTERVAL_SECONDS
+              value: "15"
+            - name: COOLDOWN_SECONDS
+              value: "60"
+            - name: DRY_RUN
+              value: "false"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: autoscaler
+  namespace: predictive-autoscaling
+spec:
+  selector: { app: autoscaler }
+  ports: [{ port: 9100, targetPort: 9100 }]

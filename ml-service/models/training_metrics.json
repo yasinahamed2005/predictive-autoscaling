@@ -1,0 +1,29 @@
+{
+  "horizon_steps": 1,
+  "train_rows": 3416,
+  "test_rows": 603,
+  "model_mae": 0.6643,
+  "model_rmse": 0.9879,
+  "naive_baseline_mae": 0.8202,
+  "naive_baseline_rmse": 1.2158,
+  "improvement_over_naive_pct": 19.01,
+  "feature_columns": [
+    "requests_per_second",
+    "active_requests",
+    "hour_sin",
+    "hour_cos",
+    "dow_sin",
+    "dow_cos",
+    "rps_lag_1",
+    "rps_lag_2",
+    "rps_lag_3",
+    "rps_lag_6",
+    "rps_lag_12",
+    "rps_rollmean_3",
+    "rps_rollmean_6",
+    "rps_rollmean_12",
+    "rps_rollstd_3",
+    "rps_rollstd_6",
+    "rps_rollstd_12"
+  ]
+}

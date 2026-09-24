@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: predictive-autoscaling
+  labels: { app: backend }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: backend }
+  template:
+    metadata:
+      labels: { app: backend }
+    spec:
+      containers:
+        - name: backend
+          image: predictive-autoscaling-backend:latest
+          imagePullPolicy: Never
+          ports: [{ containerPort: 5000 }]
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "5000"
+            - name: CLIENT_URL
+              value: "http://frontend"
+            - name: MONGODB_URI
+              value: "mongodb://mongo:27017/dukaan"
+            - name: JWT_ACCESS_SECRET
+              value: "change_me_access"
+            - name: JWT_REFRESH_SECRET
+              value: "change_me_refresh"
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits: { cpu: "500m", memory: "256Mi" }
+          readinessProbe:
+            httpGet: { path: /api/v1/health, port: 5000 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /api/v1/health, port: 5000 }
+            initialDelaySeconds: 10
+            periodSeconds: 10

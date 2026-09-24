@@ -1,0 +1,14 @@
+{
+  "rows_evaluated": 4019,
+  "reactive": {
+    "avg_replicas": 1.16,
+    "underprovisioned_steps": 5,
+    "underprovisioned_pct": 0.12
+  },
+  "predictive": {
+    "avg_replicas": 1.18,
+    "underprovisioned_steps": 0,
+    "underprovisioned_pct": 0.0
+  },
+  "predictive_reduces_underprovisioning_by_pct": 100.0
+}
